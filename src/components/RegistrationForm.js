@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../redux/actions/actionsUser';
 
-const RegistrationForm = ({ onClose }) => {
+const RegistrationForm = ({ onClose, onSuccess }) => {
   const dispatch = useDispatch();
   const registrationError = useSelector(state => state.user?.error);
   const [userName, setUserName] = useState('');
@@ -12,7 +12,7 @@ const RegistrationForm = ({ onClose }) => {
 
   const handleRegister = async () => {
     if (!userName || !email || !telefon || !password) {
-      alert('Please fill in all required fields.');
+      alert('Пожалуйста, заполните все обязательные поля.');
       return;
     }
 
@@ -25,18 +25,18 @@ const RegistrationForm = ({ onClose }) => {
 
     try {
       await dispatch(registerUser(userData));
-      console.log('User registered successfully!');
-      onClose();
+      console.log('Пользователь успешно зарегистрирован!');
+      onSuccess();
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.error('Ошибка регистрации:', error);
     }
   };
 
   return (
     <div>
-      <h2>Registration Form</h2>
+      <h2>Форма регистрации</h2>
       <div>
-        <label>User Name:</label>
+        <label>Имя пользователя:</label>
         <input
           type="text"
           value={userName}
@@ -52,7 +52,7 @@ const RegistrationForm = ({ onClose }) => {
         />
       </div>
       <div>
-        <label>Telefon:</label>
+        <label>Телефон:</label>
         <input
           type="text"
           value={telefon}
@@ -60,7 +60,7 @@ const RegistrationForm = ({ onClose }) => {
         />
       </div>
       <div>
-        <label>Password:</label>
+        <label>Пароль:</label>
         <input
           type="password"
           value={password}
@@ -68,7 +68,7 @@ const RegistrationForm = ({ onClose }) => {
         />
       </div>
       {registrationError && <div style={{ color: 'red' }}>{registrationError}</div>}
-      <button onClick={handleRegister}>Register</button>
+      <button onClick={handleRegister}>Зарегистрироваться</button>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { useDispatch, useSelector } from 'react-redux';
+import { registerUser, logoutUser } from './redux/actions/actionsUser';
 import { addTopic, fetchTopics, deleteTopic, updateTopic } from './redux/actions/actionsTopic';
 import { fetchComments, addComment, updateComment, deleteComment } from './redux/actions/actionsComment';
 import TopicList from './components/TopicList';
@@ -18,6 +19,7 @@ const App = () => {
   const [newComment, setNewComment] = useState('');
   const [selectedTopicId, setSelectedTopicId] = useState(null);
   const [showRegistration, setShowRegistration] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
     dispatch(fetchTopics());
@@ -28,6 +30,15 @@ const App = () => {
       dispatch(fetchComments(selectedTopicId));
     }
   }, [dispatch, selectedTopicId]);
+
+  useEffect(() => {
+    // Проверяем наличие токена в localStorage при загрузке страницы
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Диспатчим успешную регистрацию с токеном
+      dispatch({ type: 'REGISTER_SUCCESS', payload: token });
+    }
+  }, [dispatch]);
 
   const handleTopicClick = (topicId) => {
     setSelectedTopicId(topicId);
@@ -83,22 +94,50 @@ const App = () => {
     setShowRegistration(false);
   };
 
+  const handleRegistrationSuccess = () => {
+    setShowRegistration(false);
+    setShowConfirmation(true);
+    setTimeout(() => setShowConfirmation(false), 2000);
+    // Можно добавить дополнительные действия, например, обновление состояния авторизации
+    dispatch({ type: 'REGISTER_SUCCESS' }); // Диспатчим действие успешной регистрации
+  };
+
+  const handleLogout = () => {
+    // Очистка токена из localStorage при выходе из системы
+    localStorage.removeItem('token');
+    dispatch(logoutUser());
+  };
+
   return (
     <div>
       <Modal
         isOpen={showRegistration}
         onRequestClose={closeModal}
-        contentLabel="Registration Modal"
+        contentLabel="Регистрационная форма"
       >
-        <RegistrationForm />
-        <button onClick={closeModal}>Close</button>
+        <RegistrationForm onClose={closeModal} onSuccess={handleRegistrationSuccess} />
+        <button onClick={closeModal}>Закрыть</button>
       </Modal>
+
+      <Modal
+        isOpen={showConfirmation}
+        onRequestClose={() => setShowConfirmation(false)}
+        contentLabel="Подтверждение регистрации"
+      >
+        <h2>Вы успешно зарегистрированы!</h2>
+      </Modal>
+
+      {userId ? (
+        <button onClick={handleLogout}>Выйти</button>
+      ) : (
+        <button onClick={() => setShowRegistration(true)}>Регистрация</button>
+      )}
 
       {selectedTopicId ? (
         <div>
-          <button onClick={() => setSelectedTopicId(null)}>Back to Topics</button>
+          <button onClick={() => setSelectedTopicId(null)}>Назад к темам</button>
           <h2>
-            {topics.find(topic => topic._id === selectedTopicId)?.title || "Loading..."}
+            {topics.find(topic => topic._id === selectedTopicId)?.title || "Загрузка..."}
           </h2>
           {comments.length > 0 ? (
             <CommentList
@@ -108,16 +147,17 @@ const App = () => {
               onDeleteComment={handleDeleteComment}
             />
           ) : (
-            <div>Loading comments...</div>
+            <div>Загрузка комментариев...</div>
           )}
           <div>
             <input
               type="text"
-              placeholder="Add a comment"
+              placeholder="Добавить комментарий"
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
+              disabled={!userId}
             />
-            <button onClick={handleAddComment}>Add Comment</button>
+            <button onClick={handleAddComment} disabled={!userId}>Добавить комментарий</button>
           </div>
         </div>
       ) : (
@@ -131,16 +171,17 @@ const App = () => {
               userId={userId}
             />
           ) : (
-            <div>No topics available</div>
+            <div>Нет доступных тем</div>
           )}
           <div>
             <input
               type="text"
-              placeholder="Enter new topic"
+              placeholder="Введите новую тему"
               value={newTopicTitle}
               onChange={(e) => setNewTopicTitle(e.target.value)}
+              disabled={!userId}
             />
-            <button onClick={handleAddTopic}>Add Topic</button>
+            <button onClick={handleAddTopic} disabled={!userId}>Добавить тему</button>
           </div>
         </div>
       )}

@@ -1,30 +1,17 @@
 const initialState = {
-    user: null,
-    loading: false,
-    error: null
+    id: localStorage.getItem('token'),
+    error: null,
   };
   
   const userReducer = (state = initialState, action) => {
     switch (action.type) {
-      case 'REGISTER_REQUEST':
-        return {
-          ...state,
-          loading: true,
-          error: null
-        };
       case 'REGISTER_SUCCESS':
-        return {
-          ...state,
-          user: action.payload,
-          loading: false,
-          error: null
-        };
+        return { ...state, id: action.payload, error: null };
       case 'REGISTER_FAILURE':
-        return {
-          ...state,
-          loading: false,
-          error: action.payload
-        };
+        return { ...state, error: action.payload };
+      case 'LOGOUT_USER':
+        localStorage.removeItem('token');
+        return { ...state, id: null, error: null };
       default:
         return state;
     }
