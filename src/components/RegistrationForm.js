@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../redux/actions/actionsUser';
 
-const RegistrationForm = () => {
+const RegistrationForm = ({ onClose }) => {
   const dispatch = useDispatch();
   const registrationError = useSelector(state => state.user?.error);
   const [userName, setUserName] = useState('');
@@ -26,6 +26,7 @@ const RegistrationForm = () => {
     try {
       await dispatch(registerUser(userData));
       console.log('User registered successfully!');
+      onClose();
     } catch (error) {
       console.error('Registration failed:', error);
     }

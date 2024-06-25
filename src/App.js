@@ -7,7 +7,7 @@ import TopicList from './components/TopicList';
 import CommentList from './components/CommentList';
 import RegistrationForm from './components/RegistrationForm';
 
-Modal.setAppElement('#root'); // Устанавливаем элемент приложения для модального окна
+Modal.setAppElement('#root');
 
 const App = () => {
   const dispatch = useDispatch();
@@ -97,7 +97,9 @@ const App = () => {
       {selectedTopicId ? (
         <div>
           <button onClick={() => setSelectedTopicId(null)}>Back to Topics</button>
-          <h2>Comments for Topic</h2>
+          <h2>
+            {topics.find(topic => topic._id === selectedTopicId)?.title || "Loading..."}
+          </h2>
           {comments.length > 0 ? (
             <CommentList
               comments={comments}

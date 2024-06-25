@@ -17,8 +17,8 @@ const TopicList = ({ topics, onTopicClick, onDeleteTopic, onEditTopic, userId })
                     <h3>{topic.title}</h3>
                     {userId === topic.userId && (
                         <div>
-                            <button onClick={() => handleEditTopic(topic._id)}>Edit</button>
-                            <button onClick={() => handleDeleteTopic(topic._id)}>Delete</button>
+                            <button onClick={(e) => { e.stopPropagation(); handleEditTopic(topic._id); }}>Edit</button>
+                            <button onClick={(e) => { e.stopPropagation(); handleDeleteTopic(topic._id); }}>Delete</button>
                         </div>
                     )}
                 </div>

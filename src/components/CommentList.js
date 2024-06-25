@@ -32,7 +32,7 @@ const CommentList = ({ comments, userId, onEditComment, onDeleteComment }) => {
           ) : (
             <div>
               <p>{comment.text}</p>
-              {userId === comment.userId && ( // Проверка на совпадение userId перед отображением кнопок редактирования и удаления
+              {userId === comment.userId && (
                 <div>
                   <button onClick={() => handleEditClick(comment._id, comment.text)}>Edit</button>
                   <button onClick={() => onDeleteComment(comment._id)}>Delete</button>

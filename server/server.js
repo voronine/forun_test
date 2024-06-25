@@ -33,6 +33,9 @@ app.use('/api/comment', commentRoute);
 const topicRoute = require('./routes/topic');
 app.use('/api/topic', topicRoute);
 
+const userRoute = require('./routes/user');
+app.use('/api', userRoute);
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

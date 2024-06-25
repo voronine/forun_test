@@ -1,33 +1,46 @@
-// routes/userRoutes.js
-
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User'); // Подключаем модель пользователя
+const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-// Маршрут для регистрации нового пользователя
 router.post('/register', async (req, res) => {
     const { userName, email, telefon, password } = req.body;
 
     try {
-        // Проверяем, существует ли пользователь с таким email
         let user = await User.findOne({ email });
 
         if (user) {
             return res.status(400).json({ msg: 'User already exists' });
         }
 
-        // Создаем нового пользователя
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         user = new User({
             userName,
             email,
             telefon,
-            password // В реальном приложении пароль должен хешироваться, например, с помощью bcrypt
+            password: hashedPassword
         });
 
-        // Сохраняем пользователя в базе данных
         await user.save();
 
-        res.json({ msg: 'User registered successfully' });
+        const payload = {
+            user: {
+                id: user.id
+            }
+        };
+
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' },
+            (err, token) => {
+                if (err) throw err;
+                res.json({ token });
+            }
+        );
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
