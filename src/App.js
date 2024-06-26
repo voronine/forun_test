@@ -78,8 +78,8 @@ const App = () => {
     setShowRegistration(false);
     setShowConfirmation(true);
     setTimeout(() => setShowConfirmation(false), 2000);
-    // добавить доп действия обновление состояния авторизации
     dispatch({ type: 'REGISTER_SUCCESS' });
+    window.location.reload();
   };
 
   const handleLogout = () => {

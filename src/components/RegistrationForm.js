@@ -1,74 +1,76 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import { registerUser } from '../redux/actions/actionsUser';
 
-const RegistrationForm = ({ onClose, onSuccess }) => {
+const RegistrationForm = ({ onSuccess }) => {
   const dispatch = useDispatch();
   const registrationError = useSelector(state => state.user?.error);
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [telefon, setTelefon] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleRegister = async () => {
-    if (!userName || !email || !telefon || !password) {
-      alert('Пожалуйста, заполните все обязательные поля.');
-      return;
-    }
+  const validationSchema = Yup.object({
+    userName: Yup.string()
+      .min(2, 'Имя пользователя должно содержать не менее 2 символов')
+      .required('Имя пользователя обязательно'),
+    email: Yup.string()
+      .email('Неправильный формат E-mail')
+      .required('E-mail обязателен'),
+    telefon: Yup.string()
+      .matches(/^[0-9]+$/, 'Телефон должен содержать только цифры')
+      .min(10, 'Телефон должен содержать не менее 10 цифр')
+      .required('Телефон обязателен'),
+    password: Yup.string()
+      .min(6, 'Пароль должен содержать не менее 6 символов')
+      .required('Пароль обязателен')
+  });
 
-    const userData = {
-      userName,
-      email,
-      telefon,
-      password
-    };
-
+  const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await dispatch(registerUser(userData));
+      await dispatch(registerUser(values));
       console.log('Пользователь успешно зарегистрирован!');
       onSuccess();
     } catch (error) {
       console.error('Ошибка регистрации:', error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <div>
       <h2>Форма регистрации</h2>
-      <div>
-        <label>Имя пользователя:</label>
-        <input
-          type="text"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>E-mail:</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>Телефон:</label>
-        <input
-          type="text"
-          value={telefon}
-          onChange={(e) => setTelefon(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>Пароль:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      {registrationError && <div style={{ color: 'red' }}>{registrationError}</div>}
-      <button onClick={handleRegister}>Зарегистрироваться</button>
+      <Formik
+        initialValues={{ userName: '', email: '', telefon: '', password: '' }}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ isSubmitting }) => (
+          <Form>
+            <div>
+              <label>Имя пользователя:</label>
+              <Field type="text" name="userName" />
+              <ErrorMessage name="userName" component="div" style={{ color: 'red' }} />
+            </div>
+            <div>
+              <label>E-mail:</label>
+              <Field type="email" name="email" />
+              <ErrorMessage name="email" component="div" style={{ color: 'red' }} />
+            </div>
+            <div>
+              <label>Телефон:</label>
+              <Field type="text" name="telefon" />
+              <ErrorMessage name="telefon" component="div" style={{ color: 'red' }} />
+            </div>
+            <div>
+              <label>Пароль:</label>
+              <Field type="password" name="password" />
+              <ErrorMessage name="password" component="div" style={{ color: 'red' }} />
+            </div>
+            {registrationError && <div style={{ color: 'red' }}>{registrationError}</div>}
+            <button type="submit" disabled={isSubmitting}>Зарегистрироваться</button>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 };
