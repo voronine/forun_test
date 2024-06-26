@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser, logoutUser } from './redux/actions/actionsUser';
-import { addTopic, fetchTopics, deleteTopic, updateTopic } from './redux/actions/actionsTopic';
-import { fetchComments, addComment, updateComment, deleteComment } from './redux/actions/actionsComment';
+import { addTopic, fetchTopics } from './redux/actions/actionsTopic';
+import { fetchComments, addComment } from './redux/actions/actionsComment';
 import TopicList from './components/TopicList';
 import CommentList from './components/CommentList';
 import RegistrationForm from './components/RegistrationForm';
@@ -32,10 +32,8 @@ const App = () => {
   }, [dispatch, selectedTopicId]);
 
   useEffect(() => {
-    // Проверяем наличие токена в localStorage при загрузке страницы
     const token = localStorage.getItem('token');
     if (token) {
-      // Диспатчим успешную регистрацию с токеном
       dispatch({ type: 'REGISTER_SUCCESS', payload: token });
     }
   }, [dispatch]);
@@ -62,7 +60,6 @@ const App = () => {
     if (newComment.trim() !== '' && selectedTopicId && userId) {
       const comment = {
         text: newComment,
-        userId: userId,
         topicId: selectedTopicId
       };
       await dispatch(addComment(comment));
@@ -73,23 +70,6 @@ const App = () => {
     }
   };
 
-  const handleEditComment = (commentId, text) => {
-    const updatedComment = { text };
-    dispatch(updateComment(commentId, updatedComment));
-  };
-
-  const handleDeleteComment = (commentId) => {
-    dispatch(deleteComment(commentId));
-  };
-
-  const handleDeleteTopic = (topicId) => {
-    dispatch(deleteTopic(topicId));
-  };
-
-  const handleEditTopic = (topicId) => {
-    dispatch(updateTopic(topicId));
-  };
-
   const closeModal = () => {
     setShowRegistration(false);
   };
@@ -98,12 +78,11 @@ const App = () => {
     setShowRegistration(false);
     setShowConfirmation(true);
     setTimeout(() => setShowConfirmation(false), 2000);
-    // Можно добавить дополнительные действия, например, обновление состояния авторизации
-    dispatch({ type: 'REGISTER_SUCCESS' }); // Диспатчим действие успешной регистрации
+    // добавить доп действия обновление состояния авторизации
+    dispatch({ type: 'REGISTER_SUCCESS' });
   };
 
   const handleLogout = () => {
-    // Очистка токена из localStorage при выходе из системы
     localStorage.removeItem('token');
     dispatch(logoutUser());
   };
@@ -143,8 +122,6 @@ const App = () => {
             <CommentList
               comments={comments}
               userId={userId}
-              onEditComment={handleEditComment}
-              onDeleteComment={handleDeleteComment}
             />
           ) : (
             <div>Загрузка комментариев...</div>
@@ -166,8 +143,6 @@ const App = () => {
             <TopicList
               topics={topics}
               onTopicClick={handleTopicClick}
-              onDeleteTopic={handleDeleteTopic}
-              onEditTopic={handleEditTopic}
               userId={userId}
             />
           ) : (

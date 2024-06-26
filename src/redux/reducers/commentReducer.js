@@ -14,18 +14,6 @@ const commentReducer = (state = initialState, action) => {
                 ...state,
                 comments: [...state.comments, action.payload]
             };
-        case 'DELETE_COMMENT':
-            return {
-                ...state,
-                comments: state.comments.filter(comment => comment._id !== action.payload)
-            };
-        case 'UPDATE_COMMENT':
-            return {
-                ...state,
-                comments: state.comments.map(comment =>
-                    comment._id === action.payload._id ? action.payload : comment
-                )
-            };
         default:
             return state;
     }

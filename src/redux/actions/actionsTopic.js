@@ -20,23 +20,3 @@ export const fetchTopics = () => async (dispatch) => {
         console.error('Error fetching topics:', error);
     }
 };
-
-export const deleteTopic = (id) => async (dispatch) => {
-    try {
-        await axios.delete(`http://localhost:5000/api/topic/${id}`);
-        
-        dispatch({ type: 'DELETE_TOPIC', payload: id });
-    } catch (error) {
-        console.error('Error deleting topic:', error);
-    }
-};
-
-export const updateTopic = (id, updatedTopic) => async (dispatch) => {
-    try {
-        const response = await axios.put(`http://localhost:5000/api/topic/${id}`, updatedTopic);
-        
-        dispatch({ type: 'UPDATE_TOPIC', payload: response.data });
-    } catch (error) {
-        console.error('Error updating topic:', error);
-    }
-};
